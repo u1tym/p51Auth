@@ -2,13 +2,29 @@
 型のヒント句をつけて
 fastapiで、WEBのAPIを作成
 
+.envファイルで以下を定義
+Authのdbhost(文字列)、dbport(数値)、dbname(文字列)、dbuser(文字列)、dbpass(文字列)
+
+また、
+comlibs下のauthorize.pyの中のクラスAuthorizeを使う
 
 １．プレ要求
 URL /portal/auth/api/prerequest
+
 要求インタフェース
 | No. | 項目名 | 型 | 説明 |
 |:---:|--- |--- | --- |
 | 1 | USER | string | 試行ユーザ名 |
+
+処理内容
+Authorizeのインスタンスを生成する。
+その際の引数の値は、.envのAuthの値を使う
+
+get_magic_number()を以下の引数で呼び出す。
+user = 要求インタフェースのUSERの値
+戻り値が0以上のときは正常、負数のときは異常とみなす。
+
+以下の応答を返す。
 
 応答インタフェース
 | No. | 項目名 | 型 | 説明 |
@@ -17,6 +33,35 @@ URL /portal/auth/api/prerequest
 | 2 | DETAIL | string | 結果がFalseだった場合に詳細情報を設定 |
 | 3 | MAGIC_NUMBER | number | マジックナンバ |
 
+MAGIC_NUMBERには、get_magic_number()の戻り値を設定する。
+
+
 ２．開錠要求
 URL /portal/auth/api/unlock
+要求インタフェース
+| No. | 項目名 | 型 | 説明 |
+|:---:|--- |--- | --- |
+| 1 | USER | string | 試行ユーザ名 |
+| 2 | MAGIC_NUMBER | number | マジックナンバ |
+| 3 | HASH_PASS | string | ハッシュ化パスワード |
 
+処理内容
+Authorizeのインスタンスを生成する。
+その際の引数の値は、.envのAuthの値を使う
+
+try_unlock()を以下の引数で呼び出す。
+user = 要求インタフェースのUSER
+magic = 要求インタフェースのMAGIC_NUMBER
+pass_hash = 要求インタフェースのHASH_PASS
+
+戻り値が0以上のときは正常、負数のときは異常とみなす。
+
+以下の応答を返す。
+
+| No. | 項目名 | 型 | 説明 |
+|:---:|--- |--- | --- |
+| 1 | RESULT | boolean | 結果(True/False) |
+| 2 | DETAIL | string | 結果がFalseだった場合に詳細情報を設定 |
+| 3 | SEQ_NUMBER | number | シーケンス管理ナンバ |
+
+SEQ_NUMBERには、try_unlock()の戻り値を設定する。
