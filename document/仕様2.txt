@@ -1,0 +1,72 @@
+以下の内容でテストするソースコードの作成。
+
+期待値と合っているかを画面に表示
+送信内容と受信内容を画面に表示
+
+１．プレ要求
+
+試行内容
+USER = admin
+
+期待値
+正常が返る
+
+２．プレ要求
+
+試行内容
+USER = sample
+
+期待値
+正常が返る
+
+３．プレ要求
+
+試行内容
+USER = xxxx
+
+期待値
+異常が返る
+
+４．開錠要求
+
+準備
+USER = admin で、プレ要求を送信し、MAGIC_NUMBERを取得する
+
+試行内容
+USER = admin
+MAGIC_NUMBER = 準備で取得したMAGIC_NUMBER
+HASH_PASS = パスワード="admin"、マジックナンバ=MAGIC_NUMBERで算出したハッシュパス。算出方法は以下
+
+ハッシュパスの算出方法
+upass = パスワード
+magic = マジックナンバ
+combined = f"{upass}{magic}"
+hash_pass = format(zlib.crc32(combined.encode()) & 0xFFFFFFFF, '08x')
+
+期待値
+正常が返る
+
+５．開錠要求
+
+準備
+USER = sample で、プレ要求を送信し、MAGIC_NUMBERを取得する
+
+試行内容
+USER = sample
+MAGIC_NUMBER = 準備で取得したMAGIC_NUMBER
+HASH_PASS = パスワード="sample"、マジックナンバ=MAGIC_NUMBERで算出したハッシュパス。算出方法は４．と同様。
+
+期待値
+正常が返る
+
+
+６．開錠要求
+
+試行内容
+USER = sample
+MAGIC_NUMBER = 0
+HASH_PASS = "xxxx"
+
+期待値
+異常が返る
+
