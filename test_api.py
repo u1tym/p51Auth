@@ -2,13 +2,26 @@
 """
 APIテストスクリプト
 仕様2.txtに基づくテストケースを実行
+
+使用方法:
+  1. 環境変数で指定:
+     export API_HOST=example.com
+     export API_PORT=9000
+     python test_api.py
+  
+  2. コマンドライン引数で指定:
+     python test_api.py --host example.com --port 9000
+  
+  3. デフォルト値: localhost:8000
 """
 
+import os
 import zlib
+import argparse
 import requests
 from typing import Dict, Any, Optional
 
-# APIのベースURL
+# APIのベースURL（main()で設定される）
 BASE_URL: str = "http://localhost:8000"
 
 
@@ -151,10 +164,51 @@ def test_unlock(user: str, magic_number: int, hash_pass: str, expected_success: 
         return None
 
 
+def get_base_url() -> str:
+    """
+    環境変数またはコマンドライン引数からベースURLを取得
+    
+    Returns:
+        ベースURL（例: http://localhost:8000）
+    """
+    # 環境変数からデフォルト値を取得
+    default_host: str = os.getenv("API_HOST", "localhost")
+    default_port_str: str = os.getenv("API_PORT", "8000")
+    try:
+        default_port: int = int(default_port_str)
+    except ValueError:
+        default_port = 8000
+    
+    parser = argparse.ArgumentParser(
+        description="APIテストスクリプト",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--host",
+        type=str,
+        default=default_host,
+        help="APIサーバーのホスト名（デフォルト: localhost または環境変数 API_HOST）"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=default_port,
+        help="APIサーバーのポート番号（デフォルト: 8000 または環境変数 API_PORT）"
+    )
+    
+    args = parser.parse_args()
+    base_url: str = f"http://{args.host}:{args.port}"
+    return base_url
+
+
 def main() -> None:
     """メイン処理"""
+    global BASE_URL
+    BASE_URL = get_base_url()
+    
     print("=" * 80)
     print("APIテスト開始")
+    print(f"接続先: {BASE_URL}")
     print("=" * 80)
     
     # テスト1: プレ要求（USER = admin）
